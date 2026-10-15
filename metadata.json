@@ -1,0 +1,6 @@
+{
+  "name": "WooPulse - Smart WooCommerce Cart & Conversion Suite",
+  "description": "The high-converting, lightweight WooCommerce plugin suite that solves the #1 cart abandonment gaps: dynamic multi-tier progress rewards, instant slide-out AJAX mini-cart, 1-click WhatsApp cart recovery, and exit-intent rescue.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

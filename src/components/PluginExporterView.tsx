@@ -7,7 +7,7 @@ import {
   generatePluginCSS,
   downloadPluginZip,
 } from '../utils/generatePluginCode';
-import { Download, Copy, Check, FileCode, CheckCircle2 } from 'lucide-react';
+import { Download, Copy, Check, FileCode, CheckCircle2, ExternalLink } from 'lucide-react';
 
 interface PluginExporterViewProps {
   config: PluginConfig;
@@ -66,15 +66,26 @@ export const PluginExporterView: React.FC<PluginExporterViewProps> = ({ config }
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleDownloadZip}
-          disabled={isDownloading}
-          className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold rounded-xl shadow-md transition-colors flex items-center justify-center gap-2.5 shrink-0"
-        >
-          <Download className="w-4 h-4" />
-          <span>{isDownloading ? 'Building .ZIP...' : 'Download Plugin .ZIP'}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={handleDownloadZip}
+            disabled={isDownloading}
+            className="px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            <span>{isDownloading ? 'Building .ZIP...' : 'Download Plugin .ZIP'}</span>
+          </button>
+          <a
+            href="https://github.com/Tayyabaakmal/WooPulse-Smart-WooCommerce-Cart-Conversion-Suite/releases/tag/v1.0.0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-2"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>Release v1.0.0</span>
+          </a>
+        </div>
       </div>
 
       {/* Step by Step WordPress Installation Guide */}

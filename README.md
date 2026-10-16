@@ -1,11 +1,27 @@
 # WooPulse Pro — High-Converting WooCommerce Cart & Conversion Suite
 
+[![GitHub Release](https://img.shields.io/github/v/release/Tayyabaakmal/WooPulse-Smart-WooCommerce-Cart-Conversion-Suite?color=10b981&label=Release&style=for-the-badge&logo=github)](https://github.com/Tayyabaakmal/WooPulse-Smart-WooCommerce-Cart-Conversion-Suite/releases/tag/v1.0.0)
+[![Download WordPress Plugin](https://img.shields.io/badge/Download-woopulse--v1.0.0.zip-0284c7?style=for-the-badge&logo=wordpress&logoColor=white)](https://github.com/Tayyabaakmal/WooPulse-Smart-WooCommerce-Cart-Conversion-Suite/releases/download/v1.0.0/woopulse-v1.0.0.zip)
+[![License: GPL v2](https://img.shields.io/badge/License-GPLv2-amber.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![Zero jQuery Overhead](https://img.shields.io/badge/Payload-%3C10KB%20Vanilla%20JS-purple?style=for-the-badge)](https://github.com/Tayyabaakmal)
+
 An ultra-lightweight, zero-bloat conversion engine built to replace multiple fragmented WordPress plugins. Features a dynamic multi-tier progress reward bar, slide-out AJAX mini-cart drawer, complementary in-cart order bumps, point-of-checkout priority add-ons, and direct WhatsApp cart recovery.
 
 Author: **Tayyaba Akmal** ([@tayyabaakmal](https://github.com/tayyabaakmal))  
 License: **GPLv2 or later**  
 Frontend Payload: **Under 10KB (Zero jQuery dependencies)**  
 Compatibility: **WordPress 5.8 to 6.7+ | WooCommerce 5.0 to 9.3+**  
+Latest Release: **[v1.0.0 (woopulse-v1.0.0.zip)](https://github.com/Tayyabaakmal/WooPulse-Smart-WooCommerce-Cart-Conversion-Suite/releases/tag/v1.0.0)**
+
+---
+
+### ⚡ 1-Click WordPress Installation
+
+1. **[Click here to download woopulse-v1.0.0.zip](https://github.com/Tayyabaakmal/WooPulse-Smart-WooCommerce-Cart-Conversion-Suite/releases/download/v1.0.0/woopulse-v1.0.0.zip)**.
+2. In your WordPress Admin panel, navigate to **Plugins → Add New → Upload Plugin**.
+3. Choose the downloaded `woopulse-v1.0.0.zip` file and click **Install Now**.
+4. Click **Activate Plugin**.
+5. Configure your reward tiers and settings in **WooCommerce → WooPulse Booster**!
 
 ---
 

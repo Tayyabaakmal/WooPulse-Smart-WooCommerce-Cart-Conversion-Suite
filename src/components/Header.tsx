@@ -1,7 +1,8 @@
 import React from 'react';
 import { ActiveTab, PluginConfig } from '../types';
 import { downloadPluginZip } from '../utils/generatePluginCode';
-import { Download, ShoppingBag } from 'lucide-react';
+import { CURRENCIES, SupportedCurrency } from '../utils/currency';
+import { Download, ShoppingBag, Globe } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -9,6 +10,7 @@ interface HeaderProps {
   config: PluginConfig;
   cartCount: number;
   onOpenCart: () => void;
+  onUpdateCurrency: (currency: SupportedCurrency) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   config,
   cartCount,
   onOpenCart,
+  onUpdateCurrency,
 }) => {
   const handleDownload = async () => {
     try {
@@ -26,10 +29,12 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const currentCurrency = config.selectedCurrency || 'USD';
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-8 h-16">
+        <div className="flex items-center justify-between gap-4 h-16">
           {/* Zone 1: Single text wordmark */}
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-xl font-bold tracking-tight text-slate-900 font-serif">
@@ -37,8 +42,8 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           </div>
 
-          {/* Zone 2: 4 concise single-line nav tabs */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
+          {/* Zone 2: Navigation Tabs */}
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-sm font-medium text-slate-600">
             <button
               type="button"
               onClick={() => setActiveTab('simulator')}
@@ -48,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'hover:text-slate-900'
               }`}
             >
-              Live Storefront Simulator
+              Live Simulator
             </button>
             <button
               type="button"
@@ -59,7 +64,32 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'hover:text-slate-900'
               }`}
             >
-              Plugin Customizer
+              Customizer
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('roi')}
+              className={`whitespace-nowrap shrink-0 transition-colors py-1 flex items-center gap-1.5 ${
+                activeTab === 'roi'
+                  ? 'text-emerald-700 font-semibold border-b-2 border-emerald-600'
+                  : 'hover:text-slate-900'
+              }`}
+            >
+              <span>ROI Calculator</span>
+              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">
+                NEW
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('ab-benchmark')}
+              className={`whitespace-nowrap shrink-0 transition-colors py-1 ${
+                activeTab === 'ab-benchmark'
+                  ? 'text-slate-900 font-semibold border-b-2 border-slate-900'
+                  : 'hover:text-slate-900'
+              }`}
+            >
+              A/B Benchmark
             </button>
             <button
               type="button"
@@ -70,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'hover:text-slate-900'
               }`}
             >
-              Market Insights & Demand
+              Market Insights
             </button>
             <button
               type="button"
@@ -85,8 +115,29 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Zone 3: 1 primary action + mini-cart trigger */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Zone 3: Multi-Currency Switcher + Cart Trigger + Download Action */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Multi-Currency Dropdown */}
+            <div className="relative flex items-center">
+              <label htmlFor="currency-select" className="sr-only">Store Currency</label>
+              <div className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-800 transition-colors border border-slate-200/60">
+                <Globe className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <select
+                  id="currency-select"
+                  value={currentCurrency}
+                  onChange={e => onUpdateCurrency(e.target.value as SupportedCurrency)}
+                  className="bg-transparent text-slate-800 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+                >
+                  {Object.values(CURRENCIES).map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.code} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Shopping Bag Trigger */}
             <button
               type="button"
               onClick={onOpenCart}
@@ -101,20 +152,21 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
 
+            {/* Download Plugin Button */}
             <button
               type="button"
               onClick={handleDownload}
-              className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition-colors rounded-lg shadow-sm whitespace-nowrap shrink-0 flex items-center gap-2"
+              className="hidden sm:flex px-3.5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition-colors rounded-lg shadow-sm whitespace-nowrap shrink-0 items-center gap-2"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download Plugin .ZIP</span>
+              <span>Plugin .ZIP</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile navigation tab strip */}
-      <div className="md:hidden flex items-center justify-around border-t border-slate-100 px-2 py-2 bg-slate-50 text-xs font-medium text-slate-600 overflow-x-auto">
+      <div className="lg:hidden flex items-center gap-1 border-t border-slate-100 px-3 py-2 bg-slate-50 text-xs font-medium text-slate-600 overflow-x-auto">
         <button
           onClick={() => setActiveTab('simulator')}
           className={`px-2.5 py-1 rounded whitespace-nowrap ${activeTab === 'simulator' ? 'bg-white text-slate-900 shadow-xs font-semibold' : ''}`}
@@ -128,6 +180,18 @@ export const Header: React.FC<HeaderProps> = ({
           Customizer
         </button>
         <button
+          onClick={() => setActiveTab('roi')}
+          className={`px-2.5 py-1 rounded whitespace-nowrap ${activeTab === 'roi' ? 'bg-white text-emerald-800 shadow-xs font-semibold' : ''}`}
+        >
+          ROI Calculator
+        </button>
+        <button
+          onClick={() => setActiveTab('ab-benchmark')}
+          className={`px-2.5 py-1 rounded whitespace-nowrap ${activeTab === 'ab-benchmark' ? 'bg-white text-slate-900 shadow-xs font-semibold' : ''}`}
+        >
+          A/B Benchmark
+        </button>
+        <button
           onClick={() => setActiveTab('insights')}
           className={`px-2.5 py-1 rounded whitespace-nowrap ${activeTab === 'insights' ? 'bg-white text-slate-900 shadow-xs font-semibold' : ''}`}
         >
@@ -137,7 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('exporter')}
           className={`px-2.5 py-1 rounded whitespace-nowrap ${activeTab === 'exporter' ? 'bg-white text-slate-900 shadow-xs font-semibold' : ''}`}
         >
-          Code & Zip
+          Export & Shortcodes
         </button>
       </div>
     </header>

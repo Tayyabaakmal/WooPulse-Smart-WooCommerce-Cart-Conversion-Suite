@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, CartItem, Product, PluginConfig } from './types';
 import { DEFAULT_CONFIG, MOCK_PRODUCTS } from './data/mockProducts';
+import { CURRENCIES, SupportedCurrency, getScaledThreshold } from './utils/currency';
 import { Header } from './components/Header';
 import { StorefrontView } from './components/StorefrontView';
 import { CartDrawer } from './components/CartDrawer';
 import { ExitIntentModal } from './components/ExitIntentModal';
 import { StickyAddToCartBar } from './components/StickyAddToCartBar';
 import { CustomizerView } from './components/CustomizerView';
+import { RoiCalculator } from './components/RoiCalculator';
+import { AbBenchmarkView } from './components/AbBenchmarkView';
 import { MarketInsightsView } from './components/MarketInsightsView';
 import { PluginExporterView } from './components/PluginExporterView';
 
@@ -42,6 +45,20 @@ export default function App() {
     document.addEventListener('mouseleave', handleMouseLeave);
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, [hasTriggeredExitOnce, cart.length, config.enableExitIntent]);
+
+  // Currency switch handler that scales thresholds appropriately
+  const handleUpdateCurrency = (newCurrency: SupportedCurrency) => {
+    const details = CURRENCIES[newCurrency];
+    setConfig(prev => ({
+      ...prev,
+      selectedCurrency: newCurrency,
+      currencyCode: newCurrency,
+      currencySymbol: details.symbol,
+      tier1Threshold: getScaledThreshold(50, newCurrency),
+      tier2Threshold: getScaledThreshold(100, newCurrency),
+      tier3Threshold: getScaledThreshold(160, newCurrency),
+    }));
+  };
 
   // Cart operations
   const handleAddToCart = (product: Product, quantity = 1) => {
@@ -130,6 +147,7 @@ export default function App() {
         config={config}
         cartCount={totalCartCount}
         onOpenCart={() => setIsCartOpen(true)}
+        onUpdateCurrency={handleUpdateCurrency}
       />
 
       {/* Main Content Area */}
@@ -153,6 +171,14 @@ export default function App() {
             onChangeConfig={setConfig}
             onOpenCartPreview={() => setIsCartOpen(true)}
           />
+        )}
+
+        {activeTab === 'roi' && (
+          <RoiCalculator config={config} />
+        )}
+
+        {activeTab === 'ab-benchmark' && (
+          <AbBenchmarkView config={config} onOpenLiveCart={() => setIsCartOpen(true)} />
         )}
 
         {activeTab === 'insights' && <MarketInsightsView />}

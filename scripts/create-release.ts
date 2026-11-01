@@ -160,7 +160,7 @@ Download the production-ready WordPress plugin zip directly below and install vi
       'Content-Type': 'application/zip',
       'Content-Length': zipBuffer.length.toString()
     },
-    body: zipBuffer
+    body: new Uint8Array(zipBuffer)
   });
 
   const uploadData = await uploadResponse.json();

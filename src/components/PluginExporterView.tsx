@@ -8,6 +8,7 @@ import {
   downloadPluginZip,
 } from '../utils/generatePluginCode';
 import { Download, Copy, Check, FileCode, CheckCircle2, ExternalLink } from 'lucide-react';
+import { ShortcodeGenerator } from './ShortcodeGenerator';
 
 interface PluginExporterViewProps {
   config: PluginConfig;
@@ -126,6 +127,9 @@ export const PluginExporterView: React.FC<PluginExporterViewProps> = ({ config }
           </p>
         </div>
       </div>
+
+      {/* Interactive Shortcode & Block Builder */}
+      <ShortcodeGenerator config={config} />
 
       {/* Code Viewer & Syntax Switcher */}
       <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">

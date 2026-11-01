@@ -99,6 +99,9 @@ export interface PluginConfig {
   transitDays: number; // e.g. 2 days
   businessDaysOnly: boolean; // skip weekends
   dispatchLabel: string;
+  // Sound & Micro-interactions
+  enableCelebrationSound: boolean;
+  selectedCurrency: 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' | 'JPY';
 }
 
-export type ActiveTab = 'simulator' | 'customizer' | 'insights' | 'exporter';
+export type ActiveTab = 'simulator' | 'customizer' | 'roi' | 'ab-benchmark' | 'insights' | 'exporter';

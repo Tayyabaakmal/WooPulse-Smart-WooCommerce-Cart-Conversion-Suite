@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CartItem, PluginConfig, ComplementaryUpsell, Product } from '../types';
 import { COMPLEMENTARY_UPSELLS } from '../data/mockProducts';
 import { calculateDeliveryEstimate, DeliveryEstimate } from '../utils/deliveryCountdown';
+import { formatPrice } from '../utils/currency';
+import { fireMilestoneConfetti, soundEffects } from '../utils/celebration';
 import {
   X,
   Plus,
@@ -17,6 +19,8 @@ import {
   Package,
   Zap,
   Clock,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -102,27 +106,40 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const t2 = config.tier2Threshold;
   const t3 = config.tier3Threshold;
 
+  const [soundOn, setSoundOn] = useState(config.enableCelebrationSound !== false);
+  const prevTierRef = useRef<number>(0);
+
   const t1Unlocked = subtotal >= t1;
   const t2Unlocked = subtotal >= t2;
   const t3Unlocked = subtotal >= t3;
+
+  // Trigger celebration confetti and audio chime when ascending milestone tier
+  useEffect(() => {
+    if (!isOpen) return;
+    const currentTier = t3Unlocked ? 3 : t2Unlocked ? 2 : t1Unlocked ? 1 : 0;
+    if (currentTier > prevTierRef.current && prevTierRef.current >= 0) {
+      fireMilestoneConfetti(currentTier as 1 | 2 | 3);
+    }
+    prevTierRef.current = currentTier;
+  }, [isOpen, t1Unlocked, t2Unlocked, t3Unlocked]);
 
   const maxThreshold = t3 > 0 ? t3 : 160;
   const progressPercent = Math.min(100, Math.max(0, (subtotal / maxThreshold) * 100));
 
   let rewardMessage = '';
   if (subtotal === 0) {
-    rewardMessage = `Add $${t1.toFixed(2)} to unlock ${config.tier1Title}`;
+    rewardMessage = `Add ${formatPrice(t1, config.selectedCurrency || 'USD')} to unlock ${config.tier1Title}`;
   } else if (!t1Unlocked) {
-    const remaining = (t1 - subtotal).toFixed(2);
-    rewardMessage = `Add $${remaining} more to unlock ${config.tier1Title}!`;
+    const remaining = Math.max(0, t1 - subtotal);
+    rewardMessage = `Add ${formatPrice(remaining, config.selectedCurrency || 'USD')} more to unlock ${config.tier1Title}!`;
   } else if (!t2Unlocked) {
-    const remaining = (t2 - subtotal).toFixed(2);
-    rewardMessage = `🎉 ${config.tier1Title} unlocked! Add $${remaining} for ${config.tier2Title}!`;
+    const remaining = Math.max(0, t2 - subtotal);
+    rewardMessage = `🎉 ${config.tier1Title} unlocked! Add ${formatPrice(remaining, config.selectedCurrency || 'USD')} for ${config.tier2Title}!`;
   } else if (!t3Unlocked) {
-    const remaining = (t3 - subtotal).toFixed(2);
-    rewardMessage = `🎁 ${config.tier2Title} unlocked! Add $${remaining} for ${config.tier3Title}!`;
+    const remaining = Math.max(0, t3 - subtotal);
+    rewardMessage = `🎁 ${config.tier2Title} unlocked! Add ${formatPrice(remaining, config.selectedCurrency || 'USD')} for ${config.tier3Title}!`;
   } else {
-    rewardMessage = `✨ Maximum VIP tier unlocked! You get all perks + ${config.tier3Title}!`;
+    rewardMessage = `✨ VIP Reward Unlocked! All perks active + ${config.tier3Title}!`;
   }
 
   // Calculate discount
@@ -223,13 +240,30 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 {cart.reduce((sum, item) => sum + item.quantity, 0)}
               </span>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
-              aria-label="Close cart"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  const nextState = !soundOn;
+                  setSoundOn(nextState);
+                  soundEffects.enabled = nextState;
+                }}
+                className={`p-1.5 rounded-lg transition-colors text-xs flex items-center gap-1 ${
+                  soundOn ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100' : 'text-slate-400 hover:bg-slate-100'
+                }`}
+                title={soundOn ? 'Celebration sounds & chimes active' : 'Celebration sounds muted'}
+                aria-label="Toggle celebration audio"
+              >
+                {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
+              </button>
+              <button
+                onClick={onClose}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                aria-label="Close cart"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Dynamic Estimated Delivery Countdown based on store hours */}
@@ -249,7 +283,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
           {/* Dynamic Multi-Tier Reward Progress Bar */}
           {config.enableTieredRewards && (
-            <div className="bg-slate-50 border-b border-slate-200/80 px-5 py-3 shrink-0">
+            <div className={`bg-slate-50 border-b border-slate-200/80 px-5 py-3 shrink-0 transition-colors ${t3Unlocked ? 'bg-gradient-to-r from-emerald-50 to-amber-50/60' : ''}`}>
               <div className="text-xs font-medium text-slate-800 mb-2 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span className="truncate">{rewardMessage}</span>
@@ -268,21 +302,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className={`flex flex-col items-center text-center ${t1Unlocked ? 'text-emerald-700 font-semibold' : ''}`}>
                   <div className="flex items-center gap-1">
                     <Truck className="w-3 h-3" />
-                    <span className="tabular-nums font-mono">${t1}</span>
+                    <span className="tabular-nums font-mono">{formatPrice(t1, config.selectedCurrency || 'USD')}</span>
                   </div>
                   <span className="text-[10px] truncate max-w-[85px]">{config.tier1Title}</span>
                 </div>
                 <div className={`flex flex-col items-center text-center ${t2Unlocked ? 'text-emerald-700 font-semibold' : ''}`}>
                   <div className="flex items-center gap-1">
                     <Gift className="w-3 h-3" />
-                    <span className="tabular-nums font-mono">${t2}</span>
+                    <span className="tabular-nums font-mono">{formatPrice(t2, config.selectedCurrency || 'USD')}</span>
                   </div>
                   <span className="text-[10px] truncate max-w-[85px]">{config.tier2Title}</span>
                 </div>
                 <div className={`flex flex-col items-center text-center ${t3Unlocked ? 'text-emerald-700 font-semibold' : ''}`}>
                   <div className="flex items-center gap-1">
                     <Tag className="w-3 h-3" />
-                    <span className="tabular-nums font-mono">${t3}</span>
+                    <span className="tabular-nums font-mono">{formatPrice(t3, config.selectedCurrency || 'USD')}</span>
                   </div>
                   <span className="text-[10px] truncate max-w-[85px]">{config.tier3Title}</span>
                 </div>
@@ -358,7 +392,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           </div>
 
                           <span className="text-xs font-bold text-slate-900 tabular-nums font-mono">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.product.price * item.quantity, config.selectedCurrency || 'USD')}
                           </span>
                         </div>
                       </div>
@@ -406,10 +440,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                             <div className="flex items-center gap-2 mt-1.5">
                               <span className="text-xs font-bold text-slate-900 tabular-nums font-mono">
-                                ${upsell.price.toFixed(2)}
+                                {formatPrice(upsell.price, config.selectedCurrency || 'USD')}
                               </span>
                               <span className="text-[11px] line-through text-slate-400 tabular-nums font-mono">
-                                ${upsell.originalPrice.toFixed(2)}
+                                {formatPrice(upsell.originalPrice, config.selectedCurrency || 'USD')}
                               </span>
                             </div>
                           </div>
@@ -486,7 +520,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <span>{config.protectionBumpTitle}</span>
                         </span>
                         <span className="font-mono font-bold text-slate-900 tabular-nums">
-                          +${config.protectionBumpPrice.toFixed(2)}
+                          +{formatPrice(config.protectionBumpPrice, config.selectedCurrency || 'USD')}
                         </span>
                       </div>
                       <p className="text-[10px] text-slate-500 mt-0.5">
@@ -512,7 +546,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <span>{config.giftBoxBumpTitle}</span>
                         </span>
                         <span className="font-mono font-bold text-slate-900 tabular-nums">
-                          +${config.giftBoxBumpPrice.toFixed(2)}
+                          +{formatPrice(config.giftBoxBumpPrice, config.selectedCurrency || 'USD')}
                         </span>
                       </div>
                       <p className="text-[10px] text-slate-500 mt-0.5">
@@ -527,18 +561,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Cart Items Subtotal</span>
-                  <span className="tabular-nums font-mono font-medium">${baseSubtotal.toFixed(2)}</span>
+                  <span className="tabular-nums font-mono font-medium">{formatPrice(baseSubtotal, config.selectedCurrency || 'USD')}</span>
                 </div>
                 {pointOfCheckoutAddons > 0 && (
                   <div className="flex justify-between text-slate-600">
                     <span>Point-of-Checkout Add-ons</span>
-                    <span className="tabular-nums font-mono font-medium">+${pointOfCheckoutAddons.toFixed(2)}</span>
+                    <span className="tabular-nums font-mono font-medium">+{formatPrice(pointOfCheckoutAddons, config.selectedCurrency || 'USD')}</span>
                   </div>
                 )}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-700 font-medium">
                     <span>Discount Applied</span>
-                    <span className="tabular-nums font-mono">-${discountAmount.toFixed(2)}</span>
+                    <span className="tabular-nums font-mono">-{formatPrice(discountAmount, config.selectedCurrency || 'USD')}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-slate-600">
@@ -547,14 +581,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     {t1Unlocked ? (
                       <span className="text-emerald-600 font-semibold">FREE</span>
                     ) : (
-                      '$9.50'
+                      formatPrice(9.5, config.selectedCurrency || 'USD')
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-100">
                   <span>Grand Total</span>
                   <span className="tabular-nums font-mono">
-                    ${(finalTotal + (t1Unlocked ? 0 : 9.5)).toFixed(2)}
+                    {formatPrice(finalTotal + (t1Unlocked ? 0 : 9.5), config.selectedCurrency || 'USD')}
                   </span>
                 </div>
               </div>
@@ -602,7 +636,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <p className="text-xs text-slate-600 max-w-xs leading-relaxed">
                 Your complementary upsells and checkout add-ons increased the Average Order Value by{' '}
                 <strong className="text-slate-900 font-mono">
-                  +${(subtotal - (cart[0]?.product.price || 0)).toFixed(2)}
+                  +{formatPrice(Math.max(0, subtotal - (cart[0]?.product.price || 0)), config.selectedCurrency || 'USD')}
                 </strong>{' '}
                 with zero friction!
               </p>

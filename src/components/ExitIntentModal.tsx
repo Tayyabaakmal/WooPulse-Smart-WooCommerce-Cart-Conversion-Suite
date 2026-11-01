@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PluginConfig } from '../types';
+import { formatPrice } from '../utils/currency';
 import { X, Clock, Sparkles, Send } from 'lucide-react';
 
 interface ExitIntentModalProps {
@@ -35,7 +36,7 @@ export const ExitIntentModal: React.FC<ExitIntentModalProps> = ({
 
   const cleanPhone = config.whatsAppNumber.replace(/[^0-9]/g, '') || '15553829011';
   const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(
-    `Hello! I was browsing your store and saw the exit offer ${config.exitIntentCouponCode}. Can you save my $${subtotal.toFixed(2)} cart for me?`
+    `Hello! I was browsing your store and saw the exit offer ${config.exitIntentCouponCode}. Can you save my ${formatPrice(subtotal, config.selectedCurrency || 'USD')} cart for me?`
   )}`;
 
   return (

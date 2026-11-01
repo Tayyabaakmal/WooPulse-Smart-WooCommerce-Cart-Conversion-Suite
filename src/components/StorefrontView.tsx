@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product, PluginConfig } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
+import { formatPrice } from '../utils/currency';
 import { Star, Eye, ShoppingBag, Check, ShieldCheck, Truck, ArrowRight, Sparkles } from 'lucide-react';
 
 interface StorefrontViewProps {
@@ -15,6 +16,7 @@ interface StorefrontViewProps {
 }
 
 export const StorefrontView: React.FC<StorefrontViewProps> = ({
+  config,
   onAddToCart,
   onOpenCart,
   onTriggerExitIntent,
@@ -64,14 +66,14 @@ export const StorefrontView: React.FC<StorefrontViewProps> = ({
             onClick={() => onSetCartPreset(55)}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 transition-colors"
           >
-            Preset: Unlock Free Shipping ($55)
+            Preset: Free Shipping ({formatPrice(50, config.selectedCurrency || 'USD')})
           </button>
           <button
             type="button"
             onClick={() => onSetCartPreset(165)}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 transition-colors"
           >
-            Preset: Unlock VIP Tier ($165)
+            Preset: VIP Tier ({formatPrice(160, config.selectedCurrency || 'USD')})
           </button>
           <button
             type="button"
@@ -112,7 +114,7 @@ export const StorefrontView: React.FC<StorefrontViewProps> = ({
               onClick={() => handleAdd(MOCK_PRODUCTS[0])}
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
             >
-              <span>Add Featured Messenger ($185)</span>
+              <span>Add Featured Messenger ({formatPrice(MOCK_PRODUCTS[0].price, config.selectedCurrency || 'USD')})</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -201,11 +203,11 @@ export const StorefrontView: React.FC<StorefrontViewProps> = ({
               <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold text-slate-900 tabular-nums font-mono">
-                    ${product.price.toFixed(2)}
+                    {formatPrice(product.price, config.selectedCurrency || 'USD')}
                   </div>
                   {product.originalPrice && (
                     <div className="text-[11px] line-through text-slate-400 tabular-nums">
-                      ${product.originalPrice.toFixed(2)}
+                      {formatPrice(product.originalPrice, config.selectedCurrency || 'USD')}
                     </div>
                   )}
                 </div>
@@ -268,7 +270,7 @@ export const StorefrontView: React.FC<StorefrontViewProps> = ({
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 font-serif">{quickViewProduct.name}</h3>
                   <div className="text-base font-bold text-slate-900 mt-2 font-mono tabular-nums">
-                    ${quickViewProduct.price.toFixed(2)}
+                    {formatPrice(quickViewProduct.price, config.selectedCurrency || 'USD')}
                   </div>
                   <p className="text-xs text-slate-600 mt-3 leading-relaxed">
                     {quickViewProduct.shortDesc}

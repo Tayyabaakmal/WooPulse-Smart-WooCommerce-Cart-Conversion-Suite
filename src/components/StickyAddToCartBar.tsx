@@ -1,5 +1,6 @@
 import React from 'react';
 import { Product, PluginConfig } from '../types';
+import { formatPrice } from '../utils/currency';
 import { ShoppingBag, Check } from 'lucide-react';
 
 interface StickyAddToCartBarProps {
@@ -12,6 +13,7 @@ interface StickyAddToCartBarProps {
 
 export const StickyAddToCartBar: React.FC<StickyAddToCartBarProps> = ({
   product,
+  config,
   onAddToCart,
   onOpenCart,
   cartCount,
@@ -41,11 +43,11 @@ export const StickyAddToCartBar: React.FC<StickyAddToCartBarProps> = ({
             </h4>
             <div className="flex items-center gap-2 text-xs">
               <span className="font-bold text-slate-900 tabular-nums font-mono">
-                ${product.price.toFixed(2)}
+                {formatPrice(product.price, config.selectedCurrency || 'USD')}
               </span>
               {product.originalPrice && (
                 <span className="line-through text-slate-400 tabular-nums">
-                  ${product.originalPrice.toFixed(2)}
+                  {formatPrice(product.originalPrice, config.selectedCurrency || 'USD')}
                 </span>
               )}
               <span className="hidden sm:inline text-slate-300">·</span>

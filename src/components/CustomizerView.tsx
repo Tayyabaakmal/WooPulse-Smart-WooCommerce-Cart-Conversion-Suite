@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { PluginConfig } from '../types';
 import { calculateDeliveryEstimate } from '../utils/deliveryCountdown';
-import { Sliders, Sparkles, Wand2, Phone, Tag, Check, RefreshCw, Clock } from 'lucide-react';
+import { CURRENCIES, SupportedCurrency } from '../utils/currency';
+import { Sliders, Sparkles, Wand2, Phone, Tag, Check, RefreshCw, Clock, Volume2, Globe } from 'lucide-react';
 
 interface CustomizerViewProps {
   config: PluginConfig;
@@ -558,6 +559,74 @@ export const CustomizerView: React.FC<CustomizerViewProps> = ({
               </span>
             </div>
           )}
+        </div>
+
+        {/* Section 7: Multi-Currency & Milestone Celebration FX */}
+        <div className="p-5 bg-white rounded-xl border border-slate-200/80 space-y-4 shadow-xs md:col-span-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-emerald-600" />
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Global Currency & Milestone Celebration FX
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Select your default store currency and control celebratory confetti and Web Audio chimes when customers hit reward thresholds.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 text-xs">
+            {/* Currency selector */}
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5">
+              <label htmlFor="customizer-currency-select" className="block font-semibold text-slate-900">Store Active Currency</label>
+              <p className="text-[11px] text-slate-500">Automatically scales thresholds and cart values</p>
+              <select
+                id="customizer-currency-select"
+                value={config.selectedCurrency || 'USD'}
+                onChange={e => {
+                  const curr = e.target.value as SupportedCurrency;
+                  const details = CURRENCIES[curr];
+                  onChangeConfig({
+                    ...config,
+                    selectedCurrency: curr,
+                    currencyCode: curr,
+                    currencySymbol: details.symbol,
+                  });
+                }}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 text-xs font-semibold focus:ring-1 focus:ring-slate-900"
+              >
+                {Object.values(CURRENCIES).map(c => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.code} ({c.symbol}) — {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Confetti & Sound FX Toggle */}
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+                  <Volume2 className="w-4 h-4 text-emerald-600" />
+                  <span>Milestone Confetti & Audio Chimes</span>
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.enableCelebrationSound !== false}
+                    onChange={e => handleUpdate('enableCelebrationSound', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                Plays micro-interaction celebration confetti bursts & cheerful synthesized tone chimes via Web Audio API whenever a shopper reaches a Free Shipping or VIP tier.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

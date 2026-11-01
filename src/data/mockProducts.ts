@@ -189,4 +189,8 @@ export const DEFAULT_CONFIG: PluginConfig = {
   transitDays: 2,
   businessDaysOnly: true,
   dispatchLabel: 'Same-Day Dispatch',
+
+  // Celebration & Multi-currency
+  enableCelebrationSound: true,
+  selectedCurrency: 'USD',
 };

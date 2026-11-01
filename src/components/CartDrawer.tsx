@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CartItem, PluginConfig, ComplementaryUpsell, Product } from '../types';
-import { COMPLEMENTARY_UPSELLS } from '../data/mockProducts';
+import { COMPLEMENTARY_UPSELLS, FREE_GIFT_OPTIONS } from '../data/mockProducts';
 import { calculateDeliveryEstimate, DeliveryEstimate } from '../utils/deliveryCountdown';
 import { formatPrice } from '../utils/currency';
 import { fireMilestoneConfetti, soundEffects } from '../utils/celebration';
@@ -23,6 +23,8 @@ import {
   VolumeX,
   Check,
   Crown,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -137,6 +139,24 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const t3Nearing = t2Unlocked && !t3Unlocked && subtotal >= t3 * 0.85;
 
   const [hoveredTier, setHoveredTier] = useState<number | null>(null);
+  const [selectedGiftId, setSelectedGiftId] = useState<string | null>('gift-silk-pouch');
+  const [isGiftPickerExpanded, setIsGiftPickerExpanded] = useState<boolean>(false);
+
+  // Auto-select gift when tier 2 is unlocked
+  useEffect(() => {
+    if (t2Unlocked && !selectedGiftId) {
+      setSelectedGiftId(FREE_GIFT_OPTIONS[0].id);
+    }
+  }, [t2Unlocked, selectedGiftId]);
+
+  const activeGift = t2Unlocked && selectedGiftId
+    ? FREE_GIFT_OPTIONS.find(g => g.id === selectedGiftId) || null
+    : null;
+
+  const handleSelectGift = (giftId: string) => {
+    setSelectedGiftId(giftId);
+    fireMilestoneConfetti(2);
+  };
 
   let rewardMessage = '';
   if (subtotal === 0) {
@@ -501,8 +521,163 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
             ) : (
               <>
+                {/* Free Gift Milestone Selector Banner */}
+                {config.enableTieredRewards && (
+                  <div className="space-y-2">
+                    {t2Unlocked ? (
+                      <div className="bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-emerald-50/90 border border-emerald-200/90 rounded-xl p-3 shadow-xs transition-all">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                              <Gift className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-1.5 py-0.5 rounded">
+                                  Reward Unlocked
+                                </span>
+                                <span className="text-xs font-bold text-slate-900">Choose Your Free Gift</span>
+                              </div>
+                              <p className="text-[11px] text-slate-600 truncate mt-0.5">
+                                {activeGift ? `Selected: ${activeGift.name}` : 'Tap below to select your complimentary gift'}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIsGiftPickerExpanded(!isGiftPickerExpanded)}
+                            className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-white hover:bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 shrink-0 shadow-2xs"
+                          >
+                            <span>{isGiftPickerExpanded ? 'Hide Options' : 'Change Gift'}</span>
+                            {isGiftPickerExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+
+                        {/* Expandable Free Gift Selector Grid */}
+                        {isGiftPickerExpanded && (
+                          <div className="grid grid-cols-1 gap-2 mt-3 pt-3 border-t border-emerald-200/60">
+                            {FREE_GIFT_OPTIONS.map(gift => {
+                              const isSelected = selectedGiftId === gift.id;
+                              return (
+                                <div
+                                  key={gift.id}
+                                  onClick={() => handleSelectGift(gift.id)}
+                                  className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center gap-3 ${
+                                    isSelected
+                                      ? 'bg-white border-emerald-500 shadow-xs ring-1 ring-emerald-500/30'
+                                      : 'bg-white/70 border-emerald-200/60 hover:bg-white hover:border-emerald-300'
+                                  }`}
+                                >
+                                  <img
+                                    src={gift.image}
+                                    alt={gift.name}
+                                    referrerPolicy="no-referrer"
+                                    className="w-12 h-12 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-semibold text-slate-900 truncate">{gift.name}</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/50 shrink-0">
+                                        {gift.badge}
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{gift.subtitle}</p>
+                                    <div className="flex items-center gap-1.5 mt-1">
+                                      <span className="text-[11px] font-bold text-emerald-600 font-mono">FREE</span>
+                                      <span className="text-[10px] line-through text-slate-400 font-mono">
+                                        {formatPrice(gift.retailPrice, config.selectedCurrency || 'USD')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="shrink-0">
+                                    <div
+                                      className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
+                                        isSelected ? 'bg-emerald-600 text-white' : 'border border-slate-300 bg-white'
+                                      }`}
+                                    >
+                                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ) : subtotal > 0 && t1Unlocked ? (
+                      <div className="bg-amber-50/60 border border-dashed border-amber-200/80 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Gift className="w-4 h-4 text-amber-600 shrink-0" />
+                          <span className="text-slate-700 truncate">
+                            Add <strong className="text-amber-900 font-mono">{formatPrice(t2 - subtotal, config.selectedCurrency || 'USD')}</strong> more to claim a <strong>Free Luxury Gift</strong> ($18 value)!
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
+                          Next Perk
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+
                 {/* Active Cart Items */}
                 <div className="space-y-3.5">
+                  {/* Claimed Free Gift Line Item */}
+                  {activeGift && (
+                    <div className="flex items-start gap-3.5 pb-3.5 border-b border-emerald-100 bg-emerald-50/40 p-2.5 rounded-xl border border-dashed border-emerald-300/80 transition-all">
+                      <img
+                        src={activeGift.image}
+                        alt={activeGift.name}
+                        referrerPolicy="no-referrer"
+                        className="w-16 h-16 rounded-lg object-cover bg-white shrink-0 border border-emerald-200 shadow-2xs"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white px-1.5 py-0.5 rounded shadow-2xs">
+                                Free Gift
+                              </span>
+                              <span className="text-[10px] font-semibold text-emerald-800">{activeGift.badge}</span>
+                            </div>
+                            <h3 className="text-xs font-semibold text-slate-900 mt-1 truncate">
+                              {activeGift.name}
+                            </h3>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedGiftId(null)}
+                            className="text-slate-400 hover:text-rose-600 transition-colors p-0.5"
+                            title="Remove free gift"
+                            aria-label="Remove free gift"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{activeGift.subtitle}</p>
+
+                        <div className="flex items-center justify-between mt-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsGiftPickerExpanded(true)}
+                            className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 underline underline-offset-2 flex items-center gap-1"
+                          >
+                            <Gift className="w-3 h-3" />
+                            <span>Change Gift</span>
+                          </button>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] line-through text-slate-400 font-mono">
+                              {formatPrice(activeGift.retailPrice, config.selectedCurrency || 'USD')}
+                            </span>
+                            <span className="text-xs font-bold text-emerald-600 font-mono">
+                              FREE
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {cart.map(item => (
                     <div
                       key={item.product.id}

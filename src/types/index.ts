@@ -43,6 +43,15 @@ export interface ComplementaryUpsell {
   badgeText: string;
 }
 
+export interface FreeGiftOption {
+  id: string;
+  name: string;
+  subtitle: string;
+  retailPrice: number;
+  image: string;
+  badge: string;
+}
+
 export interface PluginConfig {
   storeName: string;
   currencySymbol: string;

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2026-10-31
+
+### Added
+- **Interactive "Claim Free Gift" Reward Picker (`CartDrawer.tsx`, `mockProducts.ts`)**:
+  - Automatically activates when Tier 2 ($100 subtotal) is attained.
+  - Curated gift options (Mulberry Silk Travel Pouch, Artisan Micro-Lot Coffee Sampler, Hand-Forged Brass Scoop).
+  - Integrated `$0.00 FREE GIFT` item rendered in cart items list with active badge and instant gift switcher.
+  - Audio chime and confetti celebration on gift claim or switch.
+  - Pre-tier motivational preview teaser encouraging shoppers to reach the gift threshold.
+
 ## [1.1.1] - 2026-10-31
 
 ### Added

@@ -133,6 +133,33 @@ export const COMPLEMENTARY_UPSELLS: import('../types').ComplementaryUpsell[] = [
   }
 ];
 
+export const FREE_GIFT_OPTIONS: import('../types').FreeGiftOption[] = [
+  {
+    id: 'gift-silk-pouch',
+    name: 'Mulberry Silk Travel Protective Pouch',
+    subtitle: 'Hand-stitched dust pouch with custom metallic pull cord',
+    retailPrice: 18.0,
+    image: '/src/assets/images/upsell_leather_balm_1792104022765.jpg',
+    badge: 'Most Popular',
+  },
+  {
+    id: 'gift-coffee-sampler',
+    name: 'Artisan Micro-Lot Coffee Sampler (100g)',
+    subtitle: 'Freshly roasted whole beans with dark cacao notes',
+    retailPrice: 15.0,
+    image: '/src/assets/images/upsell_coffee_beans_1792104022658.jpg',
+    badge: 'Barista Choice',
+  },
+  {
+    id: 'gift-brass-spoon',
+    name: 'Hand-Forged Brass Measuring Scoop',
+    subtitle: 'Solid antique brass precision 15g coffee & tea measure',
+    retailPrice: 14.0,
+    image: '/src/assets/images/product_ceramic_mug_1792103255046.jpg',
+    badge: 'Limited Edition',
+  },
+];
+
 export const DEFAULT_CONFIG: PluginConfig = {
   storeName: 'Nordic Heritage & Co.',
   currencySymbol: '$',

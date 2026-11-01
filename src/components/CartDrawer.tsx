@@ -21,6 +21,8 @@ import {
   Clock,
   Volume2,
   VolumeX,
+  Check,
+  Crown,
 } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -125,6 +127,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const maxThreshold = t3 > 0 ? t3 : 160;
   const progressPercent = Math.min(100, Math.max(0, (subtotal / maxThreshold) * 100));
+
+  const t1Pos = Math.min(92, Math.max(8, (t1 / maxThreshold) * 100));
+  const t2Pos = Math.min(92, Math.max(8, (t2 / maxThreshold) * 100));
+  const t3Pos = 97;
+
+  const t1Nearing = !t1Unlocked && subtotal >= t1 * 0.65;
+  const t2Nearing = t1Unlocked && !t2Unlocked && subtotal >= t2 * 0.75;
+  const t3Nearing = t2Unlocked && !t3Unlocked && subtotal >= t3 * 0.85;
+
+  const [hoveredTier, setHoveredTier] = useState<number | null>(null);
 
   let rewardMessage = '';
   if (subtotal === 0) {
@@ -281,44 +293,195 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
           )}
 
-          {/* Dynamic Multi-Tier Reward Progress Bar */}
+          {/* Dynamic Shimmering Multi-Tier Reward Progress Track */}
           {config.enableTieredRewards && (
-            <div className={`bg-slate-50 border-b border-slate-200/80 px-5 py-3 shrink-0 transition-colors ${t3Unlocked ? 'bg-gradient-to-r from-emerald-50 to-amber-50/60' : ''}`}>
-              <div className="text-xs font-medium text-slate-800 mb-2 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span className="truncate">{rewardMessage}</span>
+            <div className={`border-b px-5 py-3.5 shrink-0 transition-all duration-300 ${
+              t3Unlocked 
+                ? 'bg-gradient-to-r from-emerald-50 via-teal-50/70 to-amber-50/70 border-emerald-200/80 shadow-xs' 
+                : 'bg-slate-50/90 border-slate-200/80'
+            }`}>
+              {/* Header Status Bar */}
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="text-xs font-semibold text-slate-800 flex items-center gap-1.5 min-w-0">
+                  <div className={`p-1 rounded-md shrink-0 transition-colors ${
+                    t3Unlocked ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                  }`}>
+                    {t3Unlocked ? <Crown className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  </div>
+                  <span className="truncate">{rewardMessage}</span>
+                </div>
+                <span className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shrink-0 tabular-nums ${
+                  t3Unlocked 
+                    ? 'bg-amber-500 text-white shadow-2xs shadow-amber-500/30' 
+                    : progressPercent > 0 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-200 text-slate-600'
+                }`}>
+                  {t3Unlocked ? 'VIP Active' : `${Math.round(progressPercent)}%`}
+                </span>
               </div>
 
-              {/* Progress bar line */}
-              <div className="relative w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+              {/* Shimmering Progress Bar Track with Milestone Pins */}
+              <div className="relative pt-2 pb-2">
+                {/* Background Rail */}
+                <div className="relative w-full h-2.5 bg-slate-200/80 rounded-full overflow-hidden shadow-inner">
+                  {/* Shimmer Fill */}
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ease-out ${
+                      t3Unlocked ? 'shimmer-progress-vip' : 'shimmer-progress-standard'
+                    }`}
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+
+                {/* Milestone Node 1 (Free Shipping) */}
                 <div
-                  className="h-full bg-emerald-600 rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${progressPercent}%` }}
-                />
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 transition-transform duration-200 hover:scale-110 cursor-pointer"
+                  style={{ left: `${t1Pos}%` }}
+                  onMouseEnter={() => setHoveredTier(1)}
+                  onMouseLeave={() => setHoveredTier(null)}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                      t1Unlocked
+                        ? 'bg-emerald-600 text-white ring-2 ring-white shadow-emerald-600/30'
+                        : t1Nearing
+                        ? 'bg-white text-emerald-600 border-2 border-emerald-500 animate-reward-pulse'
+                        : 'bg-white text-slate-400 border-2 border-slate-300'
+                    }`}
+                  >
+                    {t1Unlocked ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Truck className="w-3 h-3" />}
+                  </div>
+
+                  {/* Micro Tooltip */}
+                  {hoveredTier === 1 && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 w-40 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl text-center pointer-events-none">
+                      <p className="font-bold text-emerald-300">{config.tier1Title}</p>
+                      <p className="text-[10px] text-slate-300">Unlock at {formatPrice(t1, config.selectedCurrency || 'USD')}</p>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Milestone Node 2 (Free Gift) */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 transition-transform duration-200 hover:scale-110 cursor-pointer"
+                  style={{ left: `${t2Pos}%` }}
+                  onMouseEnter={() => setHoveredTier(2)}
+                  onMouseLeave={() => setHoveredTier(null)}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                      t2Unlocked
+                        ? 'bg-emerald-600 text-white ring-2 ring-white shadow-emerald-600/30'
+                        : t2Nearing
+                        ? 'bg-white text-emerald-600 border-2 border-emerald-500 animate-reward-pulse'
+                        : 'bg-white text-slate-400 border-2 border-slate-300'
+                    }`}
+                  >
+                    {t2Unlocked ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Gift className="w-3 h-3" />}
+                  </div>
+
+                  {/* Micro Tooltip */}
+                  {hoveredTier === 2 && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 w-40 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl text-center pointer-events-none">
+                      <p className="font-bold text-emerald-300">{config.tier2Title}</p>
+                      <p className="text-[10px] text-slate-300">Unlock at {formatPrice(t2, config.selectedCurrency || 'USD')}</p>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Milestone Node 3 (VIP 15% Off) */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 transition-transform duration-200 hover:scale-110 cursor-pointer"
+                  style={{ left: `${t3Pos}%` }}
+                  onMouseEnter={() => setHoveredTier(3)}
+                  onMouseLeave={() => setHoveredTier(null)}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                      t3Unlocked
+                        ? 'bg-gradient-to-tr from-amber-500 to-amber-400 text-white ring-2 ring-white shadow-amber-500/40'
+                        : t3Nearing
+                        ? 'bg-white text-amber-600 border-2 border-amber-500 animate-reward-pulse'
+                        : 'bg-white text-slate-400 border-2 border-slate-300'
+                    }`}
+                  >
+                    {t3Unlocked ? <Crown className="w-3.5 h-3.5 stroke-[2.5]" /> : <Tag className="w-3 h-3" />}
+                  </div>
+
+                  {/* Micro Tooltip */}
+                  {hoveredTier === 3 && (
+                    <div className="absolute bottom-full right-0 mb-2 z-20 w-44 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-xl text-center pointer-events-none">
+                      <p className="font-bold text-amber-300">{config.tier3Title}</p>
+                      <p className="text-[10px] text-slate-300">Unlock at {formatPrice(t3, config.selectedCurrency || 'USD')}</p>
+                      <div className="absolute top-full right-3 border-4 border-transparent border-t-slate-900" />
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Tier checkpoints */}
-              <div className="grid grid-cols-3 gap-1 mt-2 text-[11px] text-slate-600">
-                <div className={`flex flex-col items-center text-center ${t1Unlocked ? 'text-emerald-700 font-semibold' : ''}`}>
-                  <div className="flex items-center gap-1">
-                    <Truck className="w-3 h-3" />
+              {/* Milestone Checkpoint Cards */}
+              <div className="grid grid-cols-3 gap-2 mt-2 pt-1">
+                {/* Tier 1 Label */}
+                <div
+                  className={`p-1.5 rounded-lg border text-center transition-all ${
+                    t1Unlocked
+                      ? 'bg-emerald-50/80 border-emerald-200/90 text-emerald-900'
+                      : 'bg-white/60 border-slate-200/70 text-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1 text-[11px] font-semibold">
+                    <Truck className={`w-3 h-3 ${t1Unlocked ? 'text-emerald-600' : 'text-slate-400'}`} />
                     <span className="tabular-nums font-mono">{formatPrice(t1, config.selectedCurrency || 'USD')}</span>
                   </div>
-                  <span className="text-[10px] truncate max-w-[85px]">{config.tier1Title}</span>
+                  <p className="text-[10px] font-medium truncate mt-0.5">{config.tier1Title}</p>
+                  <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mt-0.5 ${
+                    t1Unlocked ? 'text-emerald-700 bg-emerald-100/80' : 'text-slate-400 bg-slate-100'
+                  }`}>
+                    {t1Unlocked ? 'Unlocked' : 'Tier 1'}
+                  </span>
                 </div>
-                <div className={`flex flex-col items-center text-center ${t2Unlocked ? 'text-emerald-700 font-semibold' : ''}`}>
-                  <div className="flex items-center gap-1">
-                    <Gift className="w-3 h-3" />
+
+                {/* Tier 2 Label */}
+                <div
+                  className={`p-1.5 rounded-lg border text-center transition-all ${
+                    t2Unlocked
+                      ? 'bg-emerald-50/80 border-emerald-200/90 text-emerald-900'
+                      : 'bg-white/60 border-slate-200/70 text-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1 text-[11px] font-semibold">
+                    <Gift className={`w-3 h-3 ${t2Unlocked ? 'text-emerald-600' : 'text-slate-400'}`} />
                     <span className="tabular-nums font-mono">{formatPrice(t2, config.selectedCurrency || 'USD')}</span>
                   </div>
-                  <span className="text-[10px] truncate max-w-[85px]">{config.tier2Title}</span>
+                  <p className="text-[10px] font-medium truncate mt-0.5">{config.tier2Title}</p>
+                  <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mt-0.5 ${
+                    t2Unlocked ? 'text-emerald-700 bg-emerald-100/80' : 'text-slate-400 bg-slate-100'
+                  }`}>
+                    {t2Unlocked ? 'Unlocked' : 'Tier 2'}
+                  </span>
                 </div>
-                <div className={`flex flex-col items-center text-center ${t3Unlocked ? 'text-emerald-700 font-semibold' : ''}`}>
-                  <div className="flex items-center gap-1">
-                    <Tag className="w-3 h-3" />
+
+                {/* Tier 3 Label */}
+                <div
+                  className={`p-1.5 rounded-lg border text-center transition-all ${
+                    t3Unlocked
+                      ? 'bg-amber-50/90 border-amber-200/90 text-amber-900 shadow-2xs'
+                      : 'bg-white/60 border-slate-200/70 text-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1 text-[11px] font-semibold">
+                    <Tag className={`w-3 h-3 ${t3Unlocked ? 'text-amber-600' : 'text-slate-400'}`} />
                     <span className="tabular-nums font-mono">{formatPrice(t3, config.selectedCurrency || 'USD')}</span>
                   </div>
-                  <span className="text-[10px] truncate max-w-[85px]">{config.tier3Title}</span>
+                  <p className="text-[10px] font-medium truncate mt-0.5">{config.tier3Title}</p>
+                  <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mt-0.5 ${
+                    t3Unlocked ? 'text-amber-700 bg-amber-100' : 'text-slate-400 bg-slate-100'
+                  }`}>
+                    {t3Unlocked ? 'VIP Active' : 'Tier 3'}
+                  </span>
                 </div>
               </div>
             </div>

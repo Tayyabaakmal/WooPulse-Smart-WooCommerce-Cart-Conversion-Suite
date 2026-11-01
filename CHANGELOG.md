@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-10-31
+
+### Added
+- **Shimmering Reward Progress Track (`CartDrawer.tsx`, `index.css`)**:
+  - Continuous linear-gradient shimmer wave animation for reward milestone advancement.
+  - Interactive milestone node pins (Tier 1 Free Shipping, Tier 2 Free Gift, Tier 3 VIP 15% Off) with micro-tooltips and nearing pulse rings.
+  - Golden VIP celebratory gradient when maximum cart perks are unlocked.
+
 ## [1.1.0] - 2026-10-30
 
 ### Added

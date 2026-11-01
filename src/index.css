@@ -30,3 +30,41 @@
   animation: pulseGlow 2.5s ease-in-out infinite;
 }
 
+/* Shimmering Reward Progress Track Animations */
+@keyframes shimmerWave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.shimmer-progress-standard {
+  background: linear-gradient(90deg, #059669 0%, #10b981 25%, #6ee7b7 50%, #10b981 75%, #059669 100%);
+  background-size: 200% 100%;
+  animation: shimmerWave 2.5s linear infinite;
+}
+
+.shimmer-progress-vip {
+  background: linear-gradient(90deg, #059669 0%, #10b981 25%, #f59e0b 50%, #fbbf24 75%, #10b981 100%);
+  background-size: 200% 100%;
+  animation: shimmerWave 2s linear infinite;
+}
+
+@keyframes nodePulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-reward-pulse {
+  animation: nodePulseRing 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
